@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 98vh;
+    justify-content: center;
+}
+
+canvas {
+    background-color: black;
+}
+
+
+.canvas-wrapper {
+    display: flex;
+}
