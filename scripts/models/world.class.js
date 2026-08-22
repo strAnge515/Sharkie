@@ -4,6 +4,7 @@ class World {
   character = new Character();
   keyboard;
   level = level1;
+  camera_x = 0;
 
   constructor(canvas, keyboard) {
     this.ctx = canvas.getContext('2d');
@@ -30,8 +31,8 @@ class World {
   }
 
   drawBackground(arr) {
-    arr.forEach((BackgroundObject) => {
-      BackgroundObject.draw(this.ctx);
+    arr.forEach((backgroundObject) => {
+      backgroundObject.draw(this.ctx);
     });
   }
 }

@@ -51,6 +51,7 @@ class Character extends MoveableObject {
   speed = 2.6;
   world;
   lastMoveTime = new Date().getTime();
+  cameraOffset = 100;
 
   constructor() {
     super();
@@ -79,6 +80,7 @@ class Character extends MoveableObject {
         this.moveDown();
         this.lastMoveTime = new Date().getTime();
       }
+      this.world.camera_x = -this.x + this.cameraOffset;
     }, 1000 / 60);
 
     setInterval(() => {
