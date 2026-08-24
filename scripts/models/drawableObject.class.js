@@ -10,7 +10,7 @@ class DrawableObject {
     this.img.src = path;
   }
 
-  draw(ctx) {
-    ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+  draw(ctx, drawX = this.x) {
+    ctx.drawImage(this.img, drawX, this.y, this.width, this.height);
   }
 }

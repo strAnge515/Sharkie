@@ -2,6 +2,7 @@ class MoveableObject extends DrawableObject {
   speed = 0.15;
   imageCache = {};
   currentImage = 0;
+  otherDirection = false;
 
   loadImages(arr) {
     arr.forEach((path) => {
