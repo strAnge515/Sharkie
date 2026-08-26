@@ -63,16 +63,22 @@ class Character extends MoveableObject {
   }
 
   animate() {
-    setInterval(() => {
-      if (this.world.keyboard.RIGHT) {
+      setInterval(() => {
+      let boundary = (this.world.canvas.width /3 ) *2;
+
+      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary) {
         this.moveRight();
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = false;
       }
-      if (this.world.keyboard.LEFT && this.x > 0) {
+      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary) {
+        this.world.camera_x -= this.speed;
+      }
+      if (this.world.keyboard.LEFT && this.x > -this.world.camera_x ) {
         this.moveLeft();
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = true;
+        
       }
       if (this.world.keyboard.UP) {
         this.moveUp();
@@ -82,7 +88,7 @@ class Character extends MoveableObject {
         this.moveDown();
         this.lastMoveTime = new Date().getTime();
       }
-     this.world.camera_x = Math.min(0, -this.x + this.cameraOffset);
+      
     }, 1000 / 60);
 
     setInterval(() => {

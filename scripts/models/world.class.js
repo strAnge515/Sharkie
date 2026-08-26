@@ -37,25 +37,28 @@ class World {
     });
   }
 
-  flipImage(moveableObject) {
+  flipImage(moveableObject, drawX) {
     this.ctx.save();
     this.ctx.translate(moveableObject.width, 0);
-   this.ctx.scale(-1, 1);
-   moveableObject.x = moveableObject.x * -1; 
-  }
+    this.ctx.scale(-1, 1);
+    moveableObject.flippedX = drawX * -1;
+}
 
-  flipImageBack(moveableObject) {
-    moveableObject.x = moveableObject.x * -1;
+flipImageBack(moveableObject, drawX) {
     this.ctx.restore();
-  }
+}
 
-   drawWithFlip(moveableObject) {   
+  drawWithFlip(moveableObject) {   
+    let drawX = moveableObject.x + this.camera_x;
+
     if (moveableObject.otherDirection) {
-      this.flipImage(moveableObject);
+      this.ctx.save();
+      this.ctx.translate(moveableObject.width, 0);
+      this.ctx.scale(-1, 1);
+      moveableObject.draw(this.ctx, -drawX);
+      this.ctx.restore();
+    } else {
+      moveableObject.draw(this.ctx, drawX);
     }
-    moveableObject.draw(this.ctx);
-    if (moveableObject.otherDirection) {
-      this.flipImageBack(moveableObject);
-    }
-  }
+}
 }
