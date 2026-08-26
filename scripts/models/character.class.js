@@ -42,6 +42,27 @@ class Character extends MoveableObject {
     'graphics/1.Sharkie/2.Long_IDLE/i12.png',
     'graphics/1.Sharkie/2.Long_IDLE/i13.png',
     'graphics/1.Sharkie/2.Long_IDLE/i14.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i11.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i12.png',
+    'graphics/1.Sharkie/2.Long_IDLE/i13.png',
   ];
 
   x = 100;
@@ -63,8 +84,8 @@ class Character extends MoveableObject {
   }
 
   animate() {
-      setInterval(() => {
-      let boundary = (this.world.canvas.width /3 ) *2;
+    setInterval(() => {
+      let boundary = (this.world.canvas.width / 4) * 2;
 
       if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary) {
         this.moveRight();
@@ -74,11 +95,10 @@ class Character extends MoveableObject {
       if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary) {
         this.world.camera_x -= this.speed;
       }
-      if (this.world.keyboard.LEFT && this.x > -this.world.camera_x ) {
+      if (this.world.keyboard.LEFT && this.x > -this.world.camera_x) {
         this.moveLeft();
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = true;
-        
       }
       if (this.world.keyboard.UP) {
         this.moveUp();
@@ -88,7 +108,6 @@ class Character extends MoveableObject {
         this.moveDown();
         this.lastMoveTime = new Date().getTime();
       }
-      
     }, 1000 / 60);
 
     setInterval(() => {
