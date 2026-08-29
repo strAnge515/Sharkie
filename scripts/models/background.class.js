@@ -1,6 +1,6 @@
 class BackgroundObject extends MoveableObject {
 
-    width = 1440;
+    width = 850;
     height = 480;
     parallaxFactor;
 
