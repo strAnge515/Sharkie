@@ -19,16 +19,23 @@ class World {
     this.character.world = this;
   }
 
-  draw() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawBackground(this.level.backgroundObjects);
-   this.drawWithFlip(this.character);
+draw() {
+  this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  this.drawBackground(this.level.backgroundObjects);
+  this.drawWithFlip(this.character);
+  this.drawEnemies(this.level.enemies);
 
-    let self = this;
-    requestAnimationFrame(function () {
-      self.draw();
-    });
-  }
+  let self = this;
+  requestAnimationFrame(function () {
+    self.draw();
+  });
+}
+
+drawEnemies(enemies) {
+  enemies.forEach((enemy) => {
+    this.drawWithFlip(enemy);
+  });
+}
 
   drawBackground(arr) {
     arr.forEach((backgroundObject) => {

@@ -11,7 +11,10 @@ class Level {
 }
 
 const level1 = new Level(
-  [],
+  [
+    new Enemy('green'), 
+    new Enemy('orange')
+  ],
 
   [
     new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 0, 0.3),
