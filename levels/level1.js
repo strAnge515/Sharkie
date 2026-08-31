@@ -2,7 +2,7 @@ class Level {
   enemies;
 
   backgroundObjects;
-  level_end_x = 2200;
+  level_end_x = 3369;
 
   constructor(enemies, backgroundObjects) {
     this.enemies = enemies;
@@ -11,10 +11,7 @@ class Level {
 }
 
 const level1 = new Level(
-  [
-    new Enemy('green'), 
-    new Enemy('orange')
-  ],
+  [],
 
   [
     new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 0, 0.3),

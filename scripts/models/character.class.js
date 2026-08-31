@@ -84,31 +84,33 @@ class Character extends MoveableObject {
   }
 
   animate() {
-    setInterval(() => {
-      let boundary = (this.world.canvas.width / 4) * 2;
+     setInterval(() => {
+    let boundary = (this.world.canvas.width / 4) * 2;
+    let atLevelEnd = -this.world.camera_x >= this.world.level.level_end_x - this.world.canvas.width;
 
-      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary) {
-        this.moveRight();
-        this.lastMoveTime = new Date().getTime();
-        this.otherDirection = false;
-      }
-      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary) {
-        this.world.camera_x -= this.speed;
-      }
-      if (this.world.keyboard.LEFT && this.x > -this.world.camera_x) {
-        this.moveLeft();
-        this.lastMoveTime = new Date().getTime();
-        this.otherDirection = true;
-      }
-      if (this.world.keyboard.UP) {
-        this.moveUp();
-        this.lastMoveTime = new Date().getTime();
-      }
-      if (this.world.keyboard.DOWN) {
-        this.moveDown();
-        this.lastMoveTime = new Date().getTime();
-      }
-    }, 1000 / 60);
+    if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary && !atLevelEnd) {
+      this.moveRight();
+      this.lastMoveTime = new Date().getTime();
+      this.otherDirection = false;
+    }
+    if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary && !atLevelEnd) {
+      this.world.camera_x -= this.speed;
+    }
+    if (this.world.keyboard.LEFT && this.x > -this.world.camera_x) {
+      this.moveLeft();
+      this.lastMoveTime = new Date().getTime();
+      this.otherDirection = true;
+    }
+    if (this.world.keyboard.UP) {
+      this.moveUp();
+      this.lastMoveTime = new Date().getTime();
+    }
+    if (this.world.keyboard.DOWN) {
+      this.moveDown();
+      this.lastMoveTime = new Date().getTime();
+    }
+  }, 1000 / 60);
+
 
     setInterval(() => {
       if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.UP || this.world.keyboard.DOWN) {

@@ -84,7 +84,7 @@ class Enemy extends MoveableObject {
   };
 
   x = 400 + Math.random() * 500;
-  y = 300 ;
+ y = 50 + Math.random() * 300;
   width = 100;
   height = 80;
   speed = 0.3 + Math.random() * 0.3;
@@ -105,8 +105,12 @@ class Enemy extends MoveableObject {
   }
 
   animate() {
-    setInterval(() => {
-      this.playAnimation(this.images.swim);
-    }, 200);
-  }
+  setInterval(() => {
+    this.moveLeft();
+  }, 1000 / 60);
+
+  setInterval(() => {
+    this.playAnimation(this.images.swim);
+  }, 200);
+}
 }
