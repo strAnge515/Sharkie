@@ -124,24 +124,24 @@ class Character extends MoveableObject {
       let boundary = (this.world.canvas.width / 4) * 2;
       let atLevelEnd = -this.world.camera_x >= this.world.level.level_end_x - this.world.canvas.width;
 
-      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary) {
+      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary && !this.isAttacking && !this.isShootingBubble) {
         this.moveRight();
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = false;
       }
-      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary && !atLevelEnd) {
+      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary && !atLevelEnd && !this.isAttacking && !this.isShootingBubble) {
         this.world.camera_x -= this.speed;
       }
-      if (this.world.keyboard.LEFT && this.x > -this.world.camera_x) {
+      if (this.world.keyboard.LEFT && this.x > -this.world.camera_x && !this.isAttacking && !this.isShootingBubble) {
         this.moveLeft();
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = true;
       }
-      if (this.world.keyboard.UP) {
+      if (this.world.keyboard.UP && !this.isAttacking && !this.isShootingBubble) {
         this.moveUp();
         this.lastMoveTime = new Date().getTime();
       }
-      if (this.world.keyboard.DOWN) {
+      if (this.world.keyboard.DOWN && !this.isAttacking && !this.isShootingBubble) {
         this.moveDown();
         this.lastMoveTime = new Date().getTime();
       }
@@ -170,7 +170,7 @@ class Character extends MoveableObject {
     this.isAttacking = false;
 
     setInterval(() => {
-      if (this.world.keyboard.D && !this.isAttacking) {
+      if (this.world.keyboard.D && !this.isAttacking && !this.isShootingBubble) {
         this.currentImage = 0;
         this.isAttacking = true;
       }
@@ -189,7 +189,7 @@ class Character extends MoveableObject {
     this.isShootingBubble = false;
 
     setInterval(() => {
-      if (this.world.keyboard.SPACE && !this.isShootingBubble) {
+      if (this.world.keyboard.SPACE && !this.isShootingBubble && !this.isAttacking) {
         this.currentImage = 0;
         this.isShootingBubble = true;
       }

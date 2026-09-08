@@ -73,7 +73,6 @@ class World {
     this.drawBubbles();
     this.updateBubbles();
     this.drawStatusBars();
-    this.drawHitboxes();
 
     let self = this;
     requestAnimationFrame(function () {
@@ -195,32 +194,8 @@ class World {
     this.level.coins.splice(index, 1);
     this.coinsCollected++;
 
-    let percentage = Math.min(100, Math.floor(this.coinsCollected / 2) * 20);
+    let percentage = Math.min(100, this.coinsCollected * 20);
     this.statusBars[1].setPercentage(percentage);
-  }
-
-  drawHitboxes() {
-    this.ctx.lineWidth = 2;
-
-    let bodyHitbox = this.character.getBodyHitbox();
-    this.ctx.strokeStyle = 'blue';
-    this.ctx.strokeRect(bodyHitbox.x + this.camera_x, bodyHitbox.y, bodyHitbox.width, bodyHitbox.height);
-
-    let attackHitbox = this.character.getAttackHitbox();
-    this.ctx.strokeStyle = 'yellow';
-    this.ctx.strokeRect(attackHitbox.x + this.camera_x, attackHitbox.y, attackHitbox.width, attackHitbox.height);
-
-    this.ctx.strokeStyle = 'red';
-    this.level.enemies.forEach((enemy) => {
-      let hitbox = enemy.getHitbox();
-      this.ctx.strokeRect(hitbox.x + this.camera_x, hitbox.y, hitbox.width, hitbox.height);
-    });
-
-    this.ctx.strokeStyle = 'green';
-    this.level.coins.forEach((coin) => {
-      let coinHitbox = coin.getHitbox();
-      this.ctx.strokeRect(coinHitbox.x + this.camera_x, coinHitbox.y, coinHitbox.width, coinHitbox.height);
-    });
   }
 
   isColliding(hitboxA, hitboxB) {

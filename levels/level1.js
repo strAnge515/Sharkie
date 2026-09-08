@@ -30,7 +30,7 @@ startEnemy4.y = 130;
 
 const coins = [];
 for (let i = 0; i < 10; i++) {
-  let x = Math.random() * 3369;
+  let x = 720 + Math.random() * (3369 - 720);
   let y = 50 + Math.random() * 300;
   coins.push(new Coin(x, y));
 }
