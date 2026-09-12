@@ -87,7 +87,18 @@ class Character extends MoveableObject {
     'graphics/1.Sharkie/4.Attack/Bubble trap/op1 (with bubble formation)/8.png',
   ];
 
-  IMAGES_HURT = [
+  IMAGES_POISON_BUBBLE = [
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/1.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/2.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/3.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/4.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/5.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/6.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/7.png',
+    'graphics/1.Sharkie/4.Attack/Bubble trap/For Whale/8.png',
+  ];
+
+  IMAGES_HURT_POISON = [
     'graphics/1.Sharkie/5.Hurt/1.Poisoned/1.png',
     'graphics/1.Sharkie/5.Hurt/1.Poisoned/2.png',
     'graphics/1.Sharkie/5.Hurt/1.Poisoned/3.png',
@@ -95,11 +106,18 @@ class Character extends MoveableObject {
     'graphics/1.Sharkie/5.Hurt/1.Poisoned/5.png',
   ];
 
+  IMAGES_HURT_ELECTRIC = [
+    'graphics/1.Sharkie/5.Hurt/2.Electric shock/1.png',
+    'graphics/1.Sharkie/5.Hurt/2.Electric shock/2.png',
+    'graphics/1.Sharkie/5.Hurt/2.Electric shock/3.png',
+  ];
+
   x = 100;
   y = 100;
   height = 300;
   width = 200;
   speed = 2.6;
+  health = 100;
   world;
   lastMoveTime = new Date().getTime();
   cameraOffset = 100;
@@ -112,7 +130,9 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_STALL_LONG);
     this.loadImages(this.IMAGES_TAILATTACK);
     this.loadImages(this.IMAGES_BUBBLE);
-    this.loadImages(this.IMAGES_HURT);
+    this.loadImages(this.IMAGES_POISON_BUBBLE);
+    this.loadImages(this.IMAGES_HURT_POISON);
+    this.loadImages(this.IMAGES_HURT_ELECTRIC);
     this.animate();
     this.attack();
     this.bubbleShoot();
@@ -124,13 +144,18 @@ class Character extends MoveableObject {
       let boundary = (this.world.canvas.width / 4) * 2;
       let atLevelEnd = -this.world.camera_x >= this.world.level.level_end_x - this.world.canvas.width;
 
-      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary && !this.isAttacking && !this.isShootingBubble) {
+      if (this.world.keyboard.RIGHT && this.x + this.world.camera_x < boundary && !atLevelEnd && !this.isAttacking && !this.isShootingBubble) {
         this.moveRight();
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = false;
       }
       if (this.world.keyboard.RIGHT && this.x + this.world.camera_x >= boundary && !atLevelEnd && !this.isAttacking && !this.isShootingBubble) {
         this.world.camera_x -= this.speed;
+      }
+      if (this.world.keyboard.RIGHT && atLevelEnd && this.x + this.width < this.world.level.level_end_x && !this.isAttacking && !this.isShootingBubble) {
+        this.moveRight();
+        this.lastMoveTime = new Date().getTime();
+        this.otherDirection = false;
       }
       if (this.world.keyboard.LEFT && this.x > -this.world.camera_x && !this.isAttacking && !this.isShootingBubble) {
         this.moveLeft();
@@ -192,16 +217,22 @@ class Character extends MoveableObject {
       if (this.world.keyboard.SPACE && !this.isShootingBubble && !this.isAttacking) {
         this.currentImage = 0;
         this.isShootingBubble = true;
+        this.bubbleType = this.world.poisonCollected >= 20 ? 'poison' : 'normal';
       }
 
       if (this.isShootingBubble) {
-        this.playAnimation(this.IMAGES_BUBBLE);
+        let images = this.bubbleType === 'poison' ? this.IMAGES_POISON_BUBBLE : this.IMAGES_BUBBLE;
+        this.playAnimation(images);
 
-        if (this.currentImage >= this.IMAGES_BUBBLE.length) {
+        if (this.currentImage >= images.length) {
           this.isShootingBubble = false;
 
           setTimeout(() => {
-            this.world.spawnBubble(this.x + this.width, this.y + this.height / 2 + 27);
+            this.world.spawnBubble(this.x + this.width, this.y + this.height / 2 + 27, this.bubbleType);
+
+            if (this.bubbleType === 'poison') {
+              this.world.usePoison(20);
+            }
           });
         }
       }
@@ -231,16 +262,19 @@ class Character extends MoveableObject {
     };
   }
 
-  getHit() {
-    if (this.isHit) return;
+  getHit(hitType = 'poison') {
+    if (this.isHit) return false;
 
     let now = new Date().getTime();
-    if (this.lastHitTime && now - this.lastHitTime < 3000) return;
+    if (this.lastHitTime && now - this.lastHitTime < 2000) return false;
 
     this.isHit = true;
+    this.hitType = hitType;
     this.currentImage = 0;
     this.lastHitTime = now;
     this.lastMoveTime = now;
+    this.health = Math.max(0, this.health - 20);
+    return true;
   }
 
   hurtAnimation() {
@@ -248,9 +282,10 @@ class Character extends MoveableObject {
 
     setInterval(() => {
       if (this.isHit) {
-        this.playAnimation(this.IMAGES_HURT);
+        let images = this.hitType === 'electric' ? this.IMAGES_HURT_ELECTRIC : this.IMAGES_HURT_POISON;
+        this.playAnimation(images);
 
-        if (this.currentImage >= this.IMAGES_HURT.length) {
+        if (this.currentImage >= images.length) {
           this.isHit = false;
         }
       }
