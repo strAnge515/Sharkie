@@ -2,14 +2,16 @@ class Level {
   enemies;
   coins;
   jellyfish;
+  finalEnemy;
 
   backgroundObjects;
   level_end_x = 3369;
 
-  constructor(enemies, coins, jellyfish, backgroundObjects) {
+  constructor(enemies, coins, jellyfish, finalEnemy, backgroundObjects) {
     this.enemies = enemies;
     this.coins = coins;
     this.jellyfish = jellyfish;
+    this.finalEnemy = finalEnemy;
     this.backgroundObjects = backgroundObjects;
   }
 }
@@ -39,15 +41,18 @@ for (let i = 0; i < 5; i++) {
 
 const jellyfish = [];
 for (let i = 0; i < 6; i++) {
-  let x = 720 + Math.random() * (3369 - 500 - 720);
+  let x = 720 + Math.random() * (3369 - 720 - 720);
   let y = 50 + Math.random() * 300;
   jellyfish.push(new Jellyfish(x, y));
 }
+
+const finalEnemy = new FinalEnemy(3369 - 350, 130);
 
 const level1 = new Level(
   [startEnemy1, startEnemy2, startEnemy3, startEnemy4],
   coins,
   jellyfish,
+  finalEnemy,
 
   [
     new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 0, 0.3),

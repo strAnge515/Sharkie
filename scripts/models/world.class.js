@@ -64,6 +64,7 @@ class World {
     this.checkCoinCollisions();
     this.checkBubbleCollisions();
     this.checkPoisonBottleCollisions();
+    this.checkBossZone();
   }
 
   setWorld() {
@@ -78,6 +79,10 @@ class World {
     this.drawCoins();
     this.drawJellyfish();
     this.drawPoisonBottles();
+
+    if (this.level.finalEnemy.isVisible) {
+      this.drawWithFlip(this.level.finalEnemy);
+    }
     this.drawBubbles();
     this.updateBubbles();
     this.drawStatusBars();
@@ -138,8 +143,8 @@ class World {
     let spawnTimer = 4000 + Math.random() * 6000;
 
     setTimeout(() => {
-      this.generaetRandomEnemy();
-      if (this.character.x < this.level.level_end_x -500) {
+      if (this.character.x < this.level.level_end_x - 720) {
+        this.generaetRandomEnemy();
         this.spawnEnemies();
       }
     }, spawnTimer);
@@ -180,6 +185,14 @@ class World {
     this.level.enemies.push(enemy);
   }
 
+  checkBossZone() {
+    setInterval(() => {
+      if (this.character.x >= this.level.level_end_x - 720) {
+        this.level.finalEnemy.appear();
+      }
+    }, 100);
+  }
+
   checkCollisions() {
     setInterval(() => {
       this.level.enemies.forEach((enemy) => {
@@ -207,6 +220,14 @@ class World {
           }
         }
       });
+
+      if (this.level.finalEnemy.isVisible && !this.level.finalEnemy.isDead && this.level.finalEnemy.isAttacking) {
+        if (this.isColliding(this.character.getBodyHitbox(), this.level.finalEnemy.getHitbox())) {
+          if (this.character.getHit('poison')) {
+            this.statusBars[0].setPercentage(this.character.health);
+          }
+        }
+      }
     }, 100);
   }
 
@@ -221,6 +242,13 @@ class World {
             this.removeBubble(bubble);
           }
         });
+
+        if (bubble.type === 'poison' && this.level.finalEnemy.isVisible && !this.level.finalEnemy.isDead) {
+          if (this.isColliding(bubble.getHitbox(), this.level.finalEnemy.getHitbox())) {
+            this.level.finalEnemy.hit();
+            this.removeBubble(bubble);
+          }
+        }
       });
     }, 100);
   }
@@ -294,6 +322,12 @@ class World {
       let poisonBottleHitbox = poisonBottle.getHitbox();
       this.ctx.strokeRect(poisonBottleHitbox.x + this.camera_x, poisonBottleHitbox.y, poisonBottleHitbox.width, poisonBottleHitbox.height);
     });
+
+    if (this.level.finalEnemy.isVisible && !this.level.finalEnemy.isDead) {
+      let finalEnemyHitbox = this.level.finalEnemy.getHitbox();
+      this.ctx.strokeStyle = 'red';
+      this.ctx.strokeRect(finalEnemyHitbox.x + this.camera_x, finalEnemyHitbox.y, finalEnemyHitbox.width, finalEnemyHitbox.height);
+    }
   }
 
   isColliding(hitboxA, hitboxB) {
