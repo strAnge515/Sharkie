@@ -62,11 +62,14 @@ class FinalEnemy extends MoveableObject {
   isAttacking = false;
   isHit = false;
   isDead = false;
+  lungeSpeed = 4;
+  world;
 
   constructor(x, y) {
     super();
     this.x = x;
     this.y = y;
+    this.homeX = x;
     this.loadImages(this.IMAGES_INTRODUCE);
     this.loadImages(this.IMAGES_FLOATING);
     this.loadImages(this.IMAGES_ATTACK);
@@ -124,6 +127,7 @@ class FinalEnemy extends MoveableObject {
           this.currentImage = 0;
         }
       } else if (this.isAttacking) {
+        this.moveTowardCharacter();
         this.playAnimation(this.IMAGES_ATTACK);
 
         if (this.currentImage >= this.IMAGES_ATTACK.length) {
@@ -131,9 +135,19 @@ class FinalEnemy extends MoveableObject {
           this.currentImage = 0;
         }
       } else {
+        this.moveTowardHome();
         this.playAnimation(this.IMAGES_FLOATING);
       }
     }, 150);
+  }
+
+  moveTowardCharacter() {
+    let minGapX = this.world.character.x + 80;
+    if (this.x > minGapX) this.x -= this.lungeSpeed;
+  }
+
+  moveTowardHome() {
+    if (this.x < this.homeX) this.x += this.lungeSpeed;
   }
 
   hit() {
@@ -151,10 +165,10 @@ class FinalEnemy extends MoveableObject {
 
   getHitbox() {
     return {
-      x: this.x + 40,
-      y: this.y + 20,
-      width: this.width - 80,
-      height: this.height - 40,
+      x: this.x + 25,
+      y: this.y + 115,
+      width: 295,
+      height: 160,
     };
   }
 }

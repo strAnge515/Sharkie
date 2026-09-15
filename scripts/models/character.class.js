@@ -116,6 +116,8 @@ class Character extends MoveableObject {
   y = 100;
   height = 300;
   width = 200;
+  spriteTop = 131;
+  spriteBottom = 235;
   speed = 2.6;
   health = 100;
   world;
@@ -162,11 +164,11 @@ class Character extends MoveableObject {
         this.lastMoveTime = new Date().getTime();
         this.otherDirection = true;
       }
-      if (this.world.keyboard.UP && !this.isAttacking && !this.isShootingBubble) {
+      if (this.world.keyboard.UP && this.y + this.spriteTop > 0 && !this.isAttacking && !this.isShootingBubble) {
         this.moveUp();
         this.lastMoveTime = new Date().getTime();
       }
-      if (this.world.keyboard.DOWN && !this.isAttacking && !this.isShootingBubble) {
+      if (this.world.keyboard.DOWN && this.y + this.spriteBottom < this.world.canvas.height && !this.isAttacking && !this.isShootingBubble) {
         this.moveDown();
         this.lastMoveTime = new Date().getTime();
       }
@@ -240,14 +242,11 @@ class Character extends MoveableObject {
   }
 
   getBodyHitbox() {
-    let topInset = this.height * (2 / 3);
-    let sideInset = 40;
-
     return {
-      x: this.x + sideInset / 2,
-      y: this.y + topInset - 60,
-      width: this.width - sideInset,
-      height: this.height - topInset,
+      x: this.x + 35,
+      y: this.y + 135,
+      width: 130,
+      height: 95,
     };
   }
 
@@ -257,7 +256,7 @@ class Character extends MoveableObject {
     return {
       x: bodyHitbox.x + bodyHitbox.width,
       y: bodyHitbox.y,
-      width: 15,
+      width: 20,
       height: bodyHitbox.height,
     };
   }

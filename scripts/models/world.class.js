@@ -59,7 +59,7 @@ class World {
     this.setWorld();
 
     this.draw();
-    this.spawnEnemies();
+    // this.spawnEnemies();
     this.checkCollisions();
     this.checkCoinCollisions();
     this.checkBubbleCollisions();
@@ -69,6 +69,8 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.finalEnemy.world = this;
+    this.poisonBottles = [...this.level.poisonBottles];
   }
 
   draw() {

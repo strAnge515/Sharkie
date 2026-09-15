@@ -103,6 +103,7 @@ class Enemy extends MoveableObject {
   constructor(color) {
     super();
     this.images = this.IMAGES_PUFFERFISH[color];
+    this.images.transitionOut = this.images.transition.slice().reverse();
 
     this.loadImages(this.images.swim);
     this.loadImages(this.images.transition);
@@ -126,7 +127,23 @@ class Enemy extends MoveableObject {
       setTimeout(() => {
         this.state = 'bubbleSwim';
         this.currentImage = 0;
+        this.startDeflateTimer();
       }, this.images.transition.length * 200);
+    }, delay);
+  }
+
+  startDeflateTimer() {
+    let delay = 3000 + Math.random() * 5000;
+
+    setTimeout(() => {
+      this.state = 'transitionOut';
+      this.currentImage = 0;
+
+      setTimeout(() => {
+        this.state = 'swim';
+        this.currentImage = 0;
+        this.startInflateTimer();
+      }, this.images.transitionOut.length * 200);
     }, delay);
   }
 
