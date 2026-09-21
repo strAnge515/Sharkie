@@ -62,7 +62,7 @@ class FinalEnemy extends MoveableObject {
   isAttacking = false;
   isHit = false;
   isDead = false;
-  lungeSpeed = 4;
+  lungeSpeed = 40;
   world;
 
   constructor(x, y) {
@@ -127,12 +127,12 @@ class FinalEnemy extends MoveableObject {
           this.currentImage = 0;
         }
       } else if (this.isAttacking) {
-        this.moveTowardCharacter();
-        this.playAnimation(this.IMAGES_ATTACK);
-
         if (this.currentImage >= this.IMAGES_ATTACK.length) {
           this.isAttacking = false;
           this.currentImage = 0;
+        } else {
+          this.moveTowardCharacter();
+          this.playAnimation(this.IMAGES_ATTACK);
         }
       } else {
         this.moveTowardHome();

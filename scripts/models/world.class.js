@@ -11,45 +11,9 @@ class World {
   poisonCollected = 0;
 
   statusBars = [
-    new StatusBar(
-      {
-        0: 'graphics/4. Marcadores/green/Life/0_  copia 3.png',
-        20: 'graphics/4. Marcadores/green/Life/20_ copia 4.png',
-        40: 'graphics/4. Marcadores/green/Life/40_  copia 3.png',
-        60: 'graphics/4. Marcadores/green/Life/60_  copia 3.png',
-        80: 'graphics/4. Marcadores/green/Life/80_  copia 3.png',
-        100: 'graphics/4. Marcadores/green/Life/100_  copia 2.png',
-      },
-      20,
-      10,
-      100
-    ),
-    new StatusBar(
-      {
-        0: 'graphics/4. Marcadores/green/Coin/0_  copia 4.png',
-        20: 'graphics/4. Marcadores/green/Coin/20_  copia 2.png',
-        40: 'graphics/4. Marcadores/green/Coin/40_  copia 4.png',
-        60: 'graphics/4. Marcadores/green/Coin/60_  copia 4.png',
-        80: 'graphics/4. Marcadores/green/Coin/80_  copia 4.png',
-        100: 'graphics/4. Marcadores/green/Coin/100_ copia 4.png',
-      },
-      20,
-      65,
-      0,
-    ),
-    new StatusBar(
-      {
-        0: 'graphics/4. Marcadores/green/poisoned bubbles/0_ copia 2.png',
-        20: 'graphics/4. Marcadores/green/poisoned bubbles/20_ copia 3.png',
-        40: 'graphics/4. Marcadores/green/poisoned bubbles/40_ copia 2.png',
-        60: 'graphics/4. Marcadores/green/poisoned bubbles/60_ copia 2.png',
-        80: 'graphics/4. Marcadores/green/poisoned bubbles/80_ copia 2.png',
-        100: 'graphics/4. Marcadores/green/poisoned bubbles/100_ copia 3.png',
-      },
-      20,
-      120,
-      0
-    ),
+    new StatusBar(STATUS_BAR_IMAGES.life, 20, 10, 100),
+    new StatusBar(STATUS_BAR_IMAGES.coin, 20, 65, 0),
+    new StatusBar(STATUS_BAR_IMAGES.poison, 20, 120, 0),
   ];
 
   constructor(canvas, keyboard) {
@@ -77,15 +41,15 @@ class World {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBackground(this.level.backgroundObjects);
     this.drawWithFlip(this.character);
-    this.drawEnemies(this.level.enemies);
-    this.drawCoins();
-    this.drawJellyfish();
-    this.drawPoisonBottles();
+    this.drawObjects(this.level.enemies);
+    this.drawObjects(this.level.coins);
+    this.drawObjects(this.level.jellyfish);
+    this.drawObjects(this.poisonBottles);
 
     if (this.level.finalEnemy.isVisible) {
       this.drawWithFlip(this.level.finalEnemy);
     }
-    this.drawBubbles();
+    this.drawObjects(this.bubbles);
     this.updateBubbles();
     this.drawStatusBars();
     this.drawHitboxes();
@@ -96,27 +60,9 @@ class World {
     });
   }
 
-  drawEnemies(enemies) {
-    enemies.forEach((enemy) => {
-      this.drawWithFlip(enemy);
-    });
-  }
-
-  drawCoins() {
-    this.level.coins.forEach((coin) => {
-      this.drawWithFlip(coin);
-    });
-  }
-
-  drawJellyfish() {
-    this.level.jellyfish.forEach((jellyfish) => {
-      this.drawWithFlip(jellyfish);
-    });
-  }
-
-  drawPoisonBottles() {
-    this.poisonBottles.forEach((poisonBottle) => {
-      this.drawWithFlip(poisonBottle);
+  drawObjects(objects) {
+    objects.forEach((object) => {
+      this.drawWithFlip(object);
     });
   }
 
@@ -163,12 +109,6 @@ class World {
     });
   }
 
-  drawBubbles() {
-    this.bubbles.forEach((bubble) => {
-      this.drawWithFlip(bubble);
-    });
-  }
-
   updateBubbles() {
     this.bubbles = this.bubbles.filter((bubble) => {
       if (bubble.x + this.camera_x > this.canvas.width + 50) {
@@ -197,40 +137,45 @@ class World {
 
   checkCollisions() {
     setInterval(() => {
-      this.level.enemies.forEach((enemy) => {
-        if (enemy.isDead) return;
-
-        let enemyHitbox = enemy.getHitbox();
-
-        if (this.character.isAttacking) {
-          if (this.isColliding(this.character.getAttackHitbox(), enemyHitbox)) {
-            this.killEnemy(enemy);
-          }
-        } else if (this.isColliding(this.character.getBodyHitbox(), enemyHitbox)) {
-          if (this.character.getHit('poison')) {
-            this.statusBars[0].setPercentage(this.character.health);
-          }
-        }
-      });
-
-      this.level.jellyfish.forEach((jellyfish) => {
-        if (jellyfish.isDead) return;
-
-        if (this.isColliding(this.character.getBodyHitbox(), jellyfish.getHitbox())) {
-          if (this.character.getHit('electric')) {
-            this.statusBars[0].setPercentage(this.character.health);
-          }
-        }
-      });
-
-      if (this.level.finalEnemy.isVisible && !this.level.finalEnemy.isDead && this.level.finalEnemy.isAttacking) {
-        if (this.isColliding(this.character.getBodyHitbox(), this.level.finalEnemy.getHitbox())) {
-          if (this.character.getHit('poison')) {
-            this.statusBars[0].setPercentage(this.character.health);
-          }
-        }
-      }
+      this.level.enemies.forEach((enemy) => this.checkEnemyCollision(enemy));
+      this.level.jellyfish.forEach((jellyfish) => this.checkJellyfishCollision(jellyfish));
+      this.checkFinalEnemyCollision();
     }, 100);
+  }
+
+  checkEnemyCollision(enemy) {
+    if (enemy.isDead) return;
+
+    if (this.character.isAttacking) {
+      if (this.isColliding(this.character.getAttackHitbox(), enemy.getHitbox())) {
+        this.killEnemy(enemy);
+      }
+    } else if (this.isColliding(this.character.getBodyHitbox(), enemy.getHitbox())) {
+      this.hurtCharacter('poison');
+    }
+  }
+
+  checkJellyfishCollision(jellyfish) {
+    if (jellyfish.isDead) return;
+
+    if (this.isColliding(this.character.getBodyHitbox(), jellyfish.getHitbox())) {
+      this.hurtCharacter('electric');
+    }
+  }
+
+  checkFinalEnemyCollision() {
+    let boss = this.level.finalEnemy;
+    if (!boss.isVisible || boss.isDead || !boss.isAttacking) return;
+
+    if (this.isColliding(this.character.getBodyHitbox(), boss.getHitbox())) {
+      this.hurtCharacter('poison');
+    }
+  }
+
+  hurtCharacter(damageType) {
+    if (this.character.getHit(damageType)) {
+      this.statusBars[0].setPercentage(this.character.health);
+    }
   }
 
   checkBubbleCollisions() {
@@ -286,50 +231,28 @@ class World {
 
   drawHitboxes() {
     this.ctx.lineWidth = 2;
-
-    let bodyHitbox = this.character.getBodyHitbox();
-    this.ctx.strokeStyle = 'blue';
-    this.ctx.strokeRect(bodyHitbox.x + this.camera_x, bodyHitbox.y, bodyHitbox.width, bodyHitbox.height);
-
-    let attackHitbox = this.character.getAttackHitbox();
-    this.ctx.strokeStyle = 'yellow';
-    this.ctx.strokeRect(attackHitbox.x + this.camera_x, attackHitbox.y, attackHitbox.width, attackHitbox.height);
-
-    this.ctx.strokeStyle = 'red';
-    this.level.enemies.forEach((enemy) => {
-      let hitbox = enemy.getHitbox();
-      this.ctx.strokeRect(hitbox.x + this.camera_x, hitbox.y, hitbox.width, hitbox.height);
-    });
-
-    this.ctx.strokeStyle = 'orange';
-    this.level.jellyfish.forEach((jellyfish) => {
-      let hitbox = jellyfish.getHitbox();
-      this.ctx.strokeRect(hitbox.x + this.camera_x, hitbox.y, hitbox.width, hitbox.height);
-    });
-
-    this.ctx.strokeStyle = 'green';
-    this.level.coins.forEach((coin) => {
-      let coinHitbox = coin.getHitbox();
-      this.ctx.strokeRect(coinHitbox.x + this.camera_x, coinHitbox.y, coinHitbox.width, coinHitbox.height);
-    });
-
-    this.ctx.strokeStyle = 'cyan';
-    this.bubbles.forEach((bubble) => {
-      let bubbleHitbox = bubble.getHitbox();
-      this.ctx.strokeRect(bubbleHitbox.x + this.camera_x, bubbleHitbox.y, bubbleHitbox.width, bubbleHitbox.height);
-    });
-
-    this.ctx.strokeStyle = 'magenta';
-    this.poisonBottles.forEach((poisonBottle) => {
-      let poisonBottleHitbox = poisonBottle.getHitbox();
-      this.ctx.strokeRect(poisonBottleHitbox.x + this.camera_x, poisonBottleHitbox.y, poisonBottleHitbox.width, poisonBottleHitbox.height);
-    });
+    this.drawHitbox(this.character.getBodyHitbox(), 'blue');
+    this.drawHitbox(this.character.getAttackHitbox(), 'yellow');
+    this.drawHitboxList(this.level.enemies, 'red');
+    this.drawHitboxList(this.level.jellyfish, 'orange');
+    this.drawHitboxList(this.level.coins, 'green');
+    this.drawHitboxList(this.bubbles, 'cyan');
+    this.drawHitboxList(this.poisonBottles, 'magenta');
 
     if (this.level.finalEnemy.isVisible && !this.level.finalEnemy.isDead) {
-      let finalEnemyHitbox = this.level.finalEnemy.getHitbox();
-      this.ctx.strokeStyle = 'red';
-      this.ctx.strokeRect(finalEnemyHitbox.x + this.camera_x, finalEnemyHitbox.y, finalEnemyHitbox.width, finalEnemyHitbox.height);
+      this.drawHitbox(this.level.finalEnemy.getHitbox(), 'red');
     }
+  }
+
+  drawHitboxList(objects, color) {
+    objects.forEach((object) => {
+      this.drawHitbox(object.getHitbox(), color);
+    });
+  }
+
+  drawHitbox(hitbox, color) {
+    this.ctx.strokeStyle = color;
+    this.ctx.strokeRect(hitbox.x + this.camera_x, hitbox.y, hitbox.width, hitbox.height);
   }
 
   isColliding(hitboxA, hitboxB) {

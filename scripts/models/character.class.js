@@ -244,9 +244,9 @@ class Character extends MoveableObject {
   getBodyHitbox() {
     return {
       x: this.x + 35,
-      y: this.y + 135,
+      y: this.y + 145,
       width: 130,
-      height: 95,
+      height: 85,
     };
   }
 

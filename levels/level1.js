@@ -97,10 +97,6 @@ const fishEnemy21 = new Enemy('green');
 fishEnemy21.x = 4000;
 fishEnemy21.y = 80;
 
-const fishEnemy22 = new Enemy('orange');
-fishEnemy22.x = 4950;
-fishEnemy22.y = 300;
-
 const jelly8 = new Jellyfish(3950, 350);
 const jelly9 = new Jellyfish(4300, 140);
 const jelly10 = new Jellyfish(4700, 260);
@@ -125,14 +121,6 @@ fishEnemy17.y = 100;
 const fishEnemy20 = new Enemy('green');
 fishEnemy20.x = 5480;
 fishEnemy20.y = 380;
-
-const fishEnemy23 = new Enemy('blue');
-fishEnemy23.x = 5220;
-fishEnemy23.y = 150;
-
-const fishEnemy24 = new Enemy('orange');
-fishEnemy24.x = 5700;
-fishEnemy24.y = 280;
 
 const fishEnemy25 = new Enemy('green');
 fishEnemy25.x = 5900;
@@ -171,7 +159,7 @@ const level1 = new Level(
     fishEnemy1, fishEnemy2, fishEnemy3, fishEnemy4, fishEnemy5, fishEnemy6, fishEnemy7,
     fishEnemy8, fishEnemy9, fishEnemy10, fishEnemy11, fishEnemy12, fishEnemy13, fishEnemy14, fishEnemy15,
     fishEnemy16, fishEnemy17, fishEnemy18, fishEnemy19, fishEnemy20,
-    fishEnemy21, fishEnemy22, fishEnemy23, fishEnemy24, fishEnemy25,
+    fishEnemy21, fishEnemy25,
   ],
   coins,
   jellyfish,
