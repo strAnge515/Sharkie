@@ -1,3 +1,6 @@
+/**
+ * A collectable coin that spins in place.
+ */
 class Coin extends MoveableObject {
   IMAGES_COIN = [
     'graphics/4. Marcadores/1. Coins/1.png',
@@ -8,22 +11,33 @@ class Coin extends MoveableObject {
 
   width = 60;
   height = 60;
+  animationIntervalMs = 200;
 
+  /**
+   * @param {number} x - X position of the coin.
+   * @param {number} y - Y position of the coin.
+   */
   constructor(x, y) {
     super();
     this.x = x;
     this.y = y;
     this.loadImages(this.IMAGES_COIN);
     this.loadImage(this.IMAGES_COIN[0]);
-    this.animate();
+    this.startAnimationLoop();
   }
 
-  animate() {
-    setInterval(() => {
+  /**
+   * Plays the spinning animation.
+   */
+  startAnimationLoop() {
+    gameInterval(() => {
       this.playAnimation(this.IMAGES_COIN);
-    }, 200);
+    }, this.animationIntervalMs);
   }
 
+  /**
+   * @returns {{x: number, y: number, width: number, height: number}} The area where the coin can be collected.
+   */
   getHitbox() {
     return {
       x: this.x + 5,

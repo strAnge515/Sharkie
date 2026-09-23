@@ -1,3 +1,6 @@
+/**
+ * The end boss (a whale). It appears at the end of the level, lunges at the shark and can only be hurt by poison bubbles.
+ */
 class FinalEnemy extends MoveableObject {
   IMAGES_INTRODUCE = [
     'graphics/2.Enemy/3 Final Enemy/1.Introduce/1.png',
@@ -64,92 +67,167 @@ class FinalEnemy extends MoveableObject {
   isDead = false;
   lungeSpeed = 40;
   world;
+  homeX;
 
+  animationIntervalMs = 150;
+  appearDelayMs = 2500;
+  minAttackPauseMs = 4000;
+  extraRandomAttackPauseMs = 4000;
+  minGapToCharacter = 80;
+
+  /**
+   * Creates the end boss. It stays invisible until the shark reaches the boss zone.
+   * @param {number} x - Home x position of the boss.
+   * @param {number} y - Y position of the boss.
+   */
   constructor(x, y) {
     super();
     this.x = x;
     this.y = y;
     this.homeX = x;
+    this.loadAllImages();
+    this.startAnimationLoop();
+    this.startAttackTimer();
+  }
+
+  /**
+   * Preloads the images of every boss animation.
+   */
+  loadAllImages() {
     this.loadImages(this.IMAGES_INTRODUCE);
     this.loadImages(this.IMAGES_FLOATING);
     this.loadImages(this.IMAGES_ATTACK);
     this.loadImages(this.IMAGES_HURT);
     this.loadImages(this.IMAGES_DEAD);
-    this.animate();
-    this.startAttackTimer();
   }
 
+  /**
+   * Starts an attack after a random pause and then schedules the next one.
+   */
   startAttackTimer() {
-    let delay = 4000 + Math.random() * 4000;
+    let pauseBeforeAttack = this.minAttackPauseMs + Math.random() * this.extraRandomAttackPauseMs;
 
-    setTimeout(() => {
-      if (this.isVisible && !this.isDead && !this.isHit && !this.isIntroducing) {
+    gameTimeout(() => {
+      if (this.canStartAttack()) {
         this.currentImage = 0;
         this.isAttacking = true;
       }
-
       this.startAttackTimer();
-    }, delay);
+    }, pauseBeforeAttack);
   }
 
+  /**
+   * @returns {boolean} True if the boss is visible, alive and not busy with another animation.
+   */
+  canStartAttack() {
+    return this.isVisible && !this.isDead && !this.isHit && !this.isIntroducing;
+  }
+
+  /**
+   * Makes the boss appear after a short delay. Only works once.
+   */
   appear() {
     if (this.hasAppeared) return;
     this.hasAppeared = true;
 
-    setTimeout(() => {
-      this.currentImage = 0;
-      this.isIntroducing = true;
-      this.img = this.imageCache[this.IMAGES_INTRODUCE[0]];
-      this.isVisible = true;
-    }, 2500);
+    gameTimeout(() => this.startIntroduction(), this.appearDelayMs);
   }
 
-  animate() {
-    setInterval(() => {
+  /**
+   * Shows the boss and starts its introduction animation.
+   */
+  startIntroduction() {
+    this.currentImage = 0;
+    this.isIntroducing = true;
+    this.img = this.imageCache[this.IMAGES_INTRODUCE[0]];
+    this.isVisible = true;
+  }
+
+  /**
+   * Plays the animation that fits the current state of the boss.
+   */
+  startAnimationLoop() {
+    gameInterval(() => {
       if (!this.isVisible) return;
 
-      if (this.isDead) {
-        if (this.currentImage < this.IMAGES_DEAD.length) {
-          this.playAnimation(this.IMAGES_DEAD);
-        }
-      } else if (this.isHit) {
-        this.playAnimation(this.IMAGES_HURT);
-
-        if (this.currentImage >= this.IMAGES_HURT.length) {
-          this.isHit = false;
-          this.currentImage = 0;
-        }
-      } else if (this.isIntroducing) {
-        this.playAnimation(this.IMAGES_INTRODUCE);
-
-        if (this.currentImage >= this.IMAGES_INTRODUCE.length) {
-          this.isIntroducing = false;
-          this.currentImage = 0;
-        }
-      } else if (this.isAttacking) {
-        if (this.currentImage >= this.IMAGES_ATTACK.length) {
-          this.isAttacking = false;
-          this.currentImage = 0;
-        } else {
-          this.moveTowardCharacter();
-          this.playAnimation(this.IMAGES_ATTACK);
-        }
-      } else {
-        this.moveTowardHome();
-        this.playAnimation(this.IMAGES_FLOATING);
-      }
-    }, 150);
+      if (this.isDead) this.playDeathAnimation();
+      else if (this.isHit) this.playHurtAnimation();
+      else if (this.isIntroducing) this.playIntroduceAnimation();
+      else if (this.isAttacking) this.playAttackAnimation();
+      else this.playFloatingAnimation();
+    }, this.animationIntervalMs);
   }
 
+  /**
+   * Plays the death animation once and stays on its last frame.
+   */
+  playDeathAnimation() {
+    if (this.currentImage < this.IMAGES_DEAD.length) this.playAnimation(this.IMAGES_DEAD);
+  }
+
+  /**
+   * Plays the hurt animation once, then the boss is back to normal.
+   */
+  playHurtAnimation() {
+    this.playAnimation(this.IMAGES_HURT);
+
+    if (this.currentImage >= this.IMAGES_HURT.length) {
+      this.isHit = false;
+      this.currentImage = 0;
+    }
+  }
+
+  /**
+   * Plays the introduction animation once, then the boss starts floating.
+   */
+  playIntroduceAnimation() {
+    this.playAnimation(this.IMAGES_INTRODUCE);
+
+    if (this.currentImage >= this.IMAGES_INTRODUCE.length) {
+      this.isIntroducing = false;
+      this.currentImage = 0;
+    }
+  }
+
+  /**
+   * Plays the attack animation while the boss lunges toward the shark. Ends the attack after the last frame.
+   */
+  playAttackAnimation() {
+    if (this.currentImage >= this.IMAGES_ATTACK.length) {
+      this.isAttacking = false;
+      this.currentImage = 0;
+      return;
+    }
+    this.moveTowardCharacter();
+    this.playAnimation(this.IMAGES_ATTACK);
+  }
+
+  /**
+   * Plays the floating animation and swims back to the home position.
+   */
+  playFloatingAnimation() {
+    this.moveTowardHome();
+    this.playAnimation(this.IMAGES_FLOATING);
+  }
+
+  /**
+   * Lunges to the left toward the shark, but stops shortly in front of it.
+   */
   moveTowardCharacter() {
-    let minGapX = this.world.character.x + 80;
-    if (this.x > minGapX) this.x -= this.lungeSpeed;
+    let closestX = this.world.character.x + this.minGapToCharacter;
+    if (this.x > closestX) this.x -= this.lungeSpeed;
   }
 
+  /**
+   * Moves back to the right until the home position is reached.
+   */
   moveTowardHome() {
     if (this.x < this.homeX) this.x += this.lungeSpeed;
   }
 
+  /**
+   * Counts a hit by a poison bubble: the boss dies when no health is left, otherwise it is hurt.
+   */
   hit() {
     if (!this.isVisible || this.isDead || this.isIntroducing) return;
 
@@ -163,6 +241,9 @@ class FinalEnemy extends MoveableObject {
     }
   }
 
+  /**
+   * @returns {{x: number, y: number, width: number, height: number}} The area where the boss can be hit.
+   */
   getHitbox() {
     return {
       x: this.x + 25,

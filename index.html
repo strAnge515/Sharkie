@@ -1,36 +1,76 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Sharkie</title>
 
     <link rel="stylesheet" href="./style.css" />
 
+    <script src="./scripts/timers.js"></script>
     <script src="./scripts/statusBarImages.js"></script>
+    <script src="./scripts/characterImages.js"></script>
     <script src="./scripts/models/drawableObject.class.js"></script>
-     <script src="./scripts/models/statusbar.class.js"></script>
-     <script src="./scripts/models/moveableObject.class.js"></script>
-     <script src="./scripts/models/background.class.js"></script>
-     <script src="./scripts/models/character.class.js"></script>
-     <script src="./scripts/models/enemy.class.js"></script>
-     <script src="./scripts/models/bubble.class.js"></script>
-     <script src="./scripts/models/coin.class.js"></script>
-     <script src="./scripts/models/jellyfish.class.js"></script>
-     <script src="./scripts/models/poisonbottle.class.js"></script>
-     <script src="./scripts/models/finalenemy.class.js"></script>
+    <script src="./scripts/models/statusbar.class.js"></script>
+    <script src="./scripts/models/moveableObject.class.js"></script>
+    <script src="./scripts/models/background.class.js"></script>
+    <script src="./scripts/models/character.class.js"></script>
+    <script src="./scripts/models/enemy.class.js"></script>
+    <script src="./scripts/models/bubble.class.js"></script>
+    <script src="./scripts/models/coin.class.js"></script>
+    <script src="./scripts/models/jellyfish.class.js"></script>
+    <script src="./scripts/models/poisonbottle.class.js"></script>
+    <script src="./scripts/models/finalenemy.class.js"></script>
 
-     <script src="./levels/level1.js"></script>
+    <script src="./scripts/models/level.class.js"></script>
+    <script src="./levels/level1.js"></script>
+    <script src="./scripts/models/collisionHandler.class.js"></script>
     <script src="./scripts/models/world.class.js"></script>
-    
-    
+
     <script src="./scripts/models/keyboard.class.js"></script>
     <script src="./scripts/game.js"></script>
-    
   </head>
   <body onload="init()">
     <div class="canvas-wrapper">
       <canvas id="canvas" height="480" width="720"></canvas>
+
+      <section id="startScreen" class="screen start-screen">
+        <h1 class="game-title">Sharkie</h1>
+        <p class="story">
+          Sharkie schwimmt durch das Meer. Weiche Kugelfischen und Quallen aus, sammle Münzen und Giftflaschen
+          und besiege am Ende den riesigen Wal!
+        </p>
+        <button class="image-button" onclick="startGame()">
+          <img src="graphics/6.Botones/Start/1.png" alt="Start" width="208" />
+        </button>
+        <button class="text-button" onclick="openControls()">Steuerung</button>
+      </section>
+
+      <section id="endScreen" class="screen end-screen hidden">
+        <img id="gameOverTitle" src="graphics/6.Botones/Tittles/Game Over/Recurso 9.png" alt="Game Over" width="480" />
+        <img id="winTitle" class="hidden" src="graphics/6.Botones/Tittles/You win/Recurso 19.png" alt="You win" width="400" />
+        <button class="image-button" onclick="startGame()">
+          <img src="graphics/6.Botones/Try again/Recurso 15.png" alt="Try again" width="260" />
+        </button>
+        <button class="text-button" onclick="backToMenu()">Hauptmenü</button>
+      </section>
     </div>
+
+    <dialog id="controlsDialog">
+      <button class="close-button" onclick="closeControls()" aria-label="Schließen">&#10005;</button>
+      <h2>Steuerung</h2>
+      <div class="control-row">
+        <img class="key-arrows" src="graphics/6.Botones/Key/arrow keys.png" alt="Pfeiltasten" />
+        <span>Schwimmen</span>
+      </div>
+      <div class="control-row">
+        <img src="graphics/6.Botones/Key/D key.png" alt="Taste D" />
+        <span>Schwanzattacke gegen Kugelfische</span>
+      </div>
+      <div class="control-row">
+        <img src="graphics/6.Botones/Key/Space Bar key.png" alt="Leertaste" />
+        <span>Blase schießen: besiegt Quallen, mit Gift gefüllt auch den Wal</span>
+      </div>
+    </dialog>
   </body>
 </html>

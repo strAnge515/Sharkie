@@ -1,224 +1,183 @@
-class Level {
-  enemies;
-  coins;
-  jellyfish;
-  poisonBottles;
-  finalEnemy;
+const LEVEL_1_END_X = 6765;
+const LEVEL_1_COIN_COUNT = 10;
+const LEVEL_1_FIRST_COIN_X = 720;
+const LEVEL_1_COIN_END_MARGIN = 300;
+const LEVEL_1_BOSS_OFFSET_FROM_END = 350;
+const LEVEL_1_BOSS_Y = 130;
 
-  backgroundObjects;
-  level_end_x = 6765;
+/**
+ * Pufferfish placements in the order they are added to the level (zone = part of the level).
+ * Zone 1 (720-1450): only fish, the player learns the fish enemies.
+ * Zone 2 (1450-2100): fish and jellyfish mixed.
+ * Zone 3 (2100-2649): mostly jellyfish, one last fish before the boss zone.
+ * Zone 4 (2649-3800): breather after the jellyfish zone, fish in focus again.
+ * Zone 5 (3800-4900): fish and jellyfish mixed again.
+ * Zone 6 (4900-6045): mostly jellyfish, last fish right before the boss zone.
+ */
+const LEVEL_1_FISH_PLACEMENTS = [
+  { color: 'green', x: 740, y: 200 }, // zone 1
+  { color: 'orange', x: 920, y: 80 }, // zone 1
+  { color: 'blue', x: 1100, y: 320 }, // zone 1
+  { color: 'green', x: 1300, y: 150 }, // zone 1
+  { color: 'orange', x: 1500, y: 250 }, // zone 2
+  { color: 'blue', x: 1750, y: 100 }, // zone 2
+  { color: 'green', x: 2150, y: 180 }, // zone 3
+  { color: 'blue', x: 2750, y: 150 }, // zone 4
+  { color: 'orange', x: 2950, y: 300 }, // zone 4
+  { color: 'green', x: 3200, y: 90 }, // zone 4
+  { color: 'blue', x: 3850, y: 200 }, // zone 5
+  { color: 'orange', x: 4150, y: 100 }, // zone 5
+  { color: 'green', x: 4450, y: 320 }, // zone 5
+  { color: 'blue', x: 5000, y: 180 }, // zone 6
+  { color: 'orange', x: 5300, y: 280 }, // zone 6
+  { color: 'green', x: 5150, y: 350 }, // zone 6
+  { color: 'blue', x: 5600, y: 100 }, // zone 6
+  { color: 'orange', x: 4600, y: 300 }, // zone 5
+  { color: 'blue', x: 4850, y: 100 }, // zone 5
+  { color: 'green', x: 5480, y: 380 }, // zone 6
+  { color: 'green', x: 4000, y: 80 }, // zone 5
+  { color: 'green', x: 5900, y: 200 }, // zone 6
+];
 
-  constructor(enemies, coins, jellyfish, poisonBottles, finalEnemy, backgroundObjects) {
-    this.enemies = enemies;
-    this.coins = coins;
-    this.jellyfish = jellyfish;
-    this.poisonBottles = poisonBottles;
-    this.finalEnemy = finalEnemy;
-    this.backgroundObjects = backgroundObjects;
+/** Jellyfish placements, ordered by zone (see LEVEL_1_FISH_PLACEMENTS). */
+const LEVEL_1_JELLYFISH_PLACEMENTS = [
+  { x: 1600, y: 350 },
+  { x: 1900, y: 120 },
+  { x: 2200, y: 300 },
+  { x: 2350, y: 90 },
+  { x: 2450, y: 250 },
+  { x: 2580, y: 150 },
+  { x: 3500, y: 250 },
+  { x: 3950, y: 350 },
+  { x: 4300, y: 140 },
+  { x: 4700, y: 260 },
+  { x: 5100, y: 100 },
+  { x: 5450, y: 320 },
+  { x: 5750, y: 150 },
+  { x: 5950, y: 250 },
+];
+
+/**
+ * Poison bottles placed by hand, so supplies do not only depend on killing fish.
+ * The last four form a refill cluster shortly before the boss zone (from x = 6045),
+ * so the poison bar is full before the boss fight.
+ */
+const LEVEL_1_POISON_BOTTLE_PLACEMENTS = [
+  { x: 2050, y: 260 },
+  { x: 2320, y: 140 },
+  { x: 2600, y: 300 },
+  { x: 5550, y: 200 },
+  { x: 5850, y: 300 },
+  { x: 5700, y: 320 },
+  { x: 5820, y: 80 },
+  { x: 5960, y: 380 },
+  { x: 6030, y: 180 },
+];
+
+/**
+ * Background segments from left to right, each using image variant 1 or 2.
+ * The far layers (water and the two background layers) start at farLayersX, the light and
+ * floor layers at nearLayersX. The small differences between both values are tuned so that
+ * no gaps are visible between the segments.
+ */
+const LEVEL_1_BACKGROUND_SEGMENTS = [
+  { imageVariant: 1, farLayersX: 0, nearLayersX: 0 },
+  { imageVariant: 2, farLayersX: 849, nearLayersX: 849 },
+  { imageVariant: 1, farLayersX: 1689, nearLayersX: 1698 },
+  { imageVariant: 2, farLayersX: 2516, nearLayersX: 2547 },
+  { imageVariant: 1, farLayersX: 3365, nearLayersX: 3369 },
+  { imageVariant: 2, farLayersX: 4214, nearLayersX: 4218 },
+  { imageVariant: 1, farLayersX: 5063, nearLayersX: 5067 },
+  { imageVariant: 2, farLayersX: 5912, nearLayersX: 5916 },
+  { imageVariant: 1, farLayersX: 6761, nearLayersX: 6765 },
+];
+
+/**
+ * Builds a fresh level 1 with new enemies, coins and bottles.
+ * @returns {Level} The new level.
+ */
+function createLevel1() {
+  return new Level(
+    createFishEnemies(LEVEL_1_FISH_PLACEMENTS),
+    createRandomCoins(LEVEL_1_COIN_COUNT, LEVEL_1_END_X),
+    createJellyfish(LEVEL_1_JELLYFISH_PLACEMENTS),
+    createPoisonBottles(LEVEL_1_POISON_BOTTLE_PLACEMENTS),
+    new FinalEnemy(LEVEL_1_END_X - LEVEL_1_BOSS_OFFSET_FROM_END, LEVEL_1_BOSS_Y),
+    createBackgroundObjects(LEVEL_1_BACKGROUND_SEGMENTS),
+    LEVEL_1_END_X,
+  );
+}
+
+/**
+ * @param {{color: string, x: number, y: number}[]} placements - Color and start position of every fish.
+ * @returns {Enemy[]} The pufferfish at their start positions.
+ */
+function createFishEnemies(placements) {
+  return placements.map((placement) => {
+    let fish = new Enemy(placement.color);
+    fish.x = placement.x;
+    fish.y = placement.y;
+    return fish;
+  });
+}
+
+/**
+ * @param {{x: number, y: number}[]} placements - Position of every jellyfish.
+ * @returns {Jellyfish[]} The jellyfish at their positions.
+ */
+function createJellyfish(placements) {
+  return placements.map((placement) => new Jellyfish(placement.x, placement.y));
+}
+
+/**
+ * @param {{x: number, y: number}[]} placements - Position of every poison bottle.
+ * @returns {PoisonBottle[]} The poison bottles at their positions.
+ */
+function createPoisonBottles(placements) {
+  return placements.map((placement) => new PoisonBottle(placement.x, placement.y));
+}
+
+/**
+ * Creates coins at random positions between the first screen and shortly before the level end.
+ * @param {number} coinCount - How many coins to create.
+ * @param {number} levelEndX - The x position where the level ends.
+ * @returns {Coin[]} The coins.
+ */
+function createRandomCoins(coinCount, levelEndX) {
+  let coins = [];
+  let coinAreaWidth = levelEndX - LEVEL_1_COIN_END_MARGIN - LEVEL_1_FIRST_COIN_X;
+
+  for (let coinNumber = 0; coinNumber < coinCount; coinNumber++) {
+    let coinX = LEVEL_1_FIRST_COIN_X + Math.random() * coinAreaWidth;
+    let coinY = 50 + Math.random() * 300;
+    coins.push(new Coin(coinX, coinY));
   }
+  return coins;
 }
 
-// Zone 1 (720-1450): nur Fische, Spieler lernt die Fisch-Gegner kennen
-const fishEnemy1 = new Enemy('green');
-fishEnemy1.x = 740;
-fishEnemy1.y = 200;
-
-const fishEnemy2 = new Enemy('orange');
-fishEnemy2.x = 920;
-fishEnemy2.y = 80;
-
-const fishEnemy3 = new Enemy('blue');
-fishEnemy3.x = 1100;
-fishEnemy3.y = 320;
-
-const fishEnemy4 = new Enemy('green');
-fishEnemy4.x = 1300;
-fishEnemy4.y = 150;
-
-// Zone 2 (1450-2100): Fische und Jellyfish gemischt
-const fishEnemy5 = new Enemy('orange');
-fishEnemy5.x = 1500;
-fishEnemy5.y = 250;
-
-const fishEnemy6 = new Enemy('blue');
-fishEnemy6.x = 1750;
-fishEnemy6.y = 100;
-
-const jelly1 = new Jellyfish(1600, 350);
-const jelly2 = new Jellyfish(1900, 120);
-
-// Zone 3 (2100-2649): Jellyfish-lastig, letzter Fisch, kurz vor der Bosszone
-const fishEnemy7 = new Enemy('green');
-fishEnemy7.x = 2150;
-fishEnemy7.y = 180;
-
-const jelly3 = new Jellyfish(2200, 300);
-const jelly4 = new Jellyfish(2350, 90);
-const jelly5 = new Jellyfish(2450, 250);
-const jelly6 = new Jellyfish(2580, 150);
-
-// Zone 4 (2649-3800): Verschnaufpause nach der Jellyfish-Zone, wieder Fische im Fokus
-const fishEnemy8 = new Enemy('blue');
-fishEnemy8.x = 2750;
-fishEnemy8.y = 150;
-
-const fishEnemy9 = new Enemy('orange');
-fishEnemy9.x = 2950;
-fishEnemy9.y = 300;
-
-const fishEnemy10 = new Enemy('green');
-fishEnemy10.x = 3200;
-fishEnemy10.y = 90;
-
-const jelly7 = new Jellyfish(3500, 250);
-
-// Zone 5 (3800-4900): wieder Fische und Jellyfish gemischt
-const fishEnemy11 = new Enemy('blue');
-fishEnemy11.x = 3850;
-fishEnemy11.y = 200;
-
-const fishEnemy12 = new Enemy('orange');
-fishEnemy12.x = 4150;
-fishEnemy12.y = 100;
-
-const fishEnemy13 = new Enemy('green');
-fishEnemy13.x = 4450;
-fishEnemy13.y = 320;
-
-const fishEnemy18 = new Enemy('orange');
-fishEnemy18.x = 4600;
-fishEnemy18.y = 300;
-
-const fishEnemy19 = new Enemy('blue');
-fishEnemy19.x = 4850;
-fishEnemy19.y = 100;
-
-const fishEnemy21 = new Enemy('green');
-fishEnemy21.x = 4000;
-fishEnemy21.y = 80;
-
-const jelly8 = new Jellyfish(3950, 350);
-const jelly9 = new Jellyfish(4300, 140);
-const jelly10 = new Jellyfish(4700, 260);
-
-// Zone 6 (4900-6045): Jellyfish-lastig, letzte Fische, kurz vor der Bosszone
-const fishEnemy14 = new Enemy('blue');
-fishEnemy14.x = 5000;
-fishEnemy14.y = 180;
-
-const fishEnemy15 = new Enemy('orange');
-fishEnemy15.x = 5300;
-fishEnemy15.y = 280;
-
-const fishEnemy16 = new Enemy('green');
-fishEnemy16.x = 5150;
-fishEnemy16.y = 350;
-
-const fishEnemy17 = new Enemy('blue');
-fishEnemy17.x = 5600;
-fishEnemy17.y = 100;
-
-const fishEnemy20 = new Enemy('green');
-fishEnemy20.x = 5480;
-fishEnemy20.y = 380;
-
-const fishEnemy25 = new Enemy('green');
-fishEnemy25.x = 5900;
-fishEnemy25.y = 200;
-
-const jelly11 = new Jellyfish(5100, 100);
-const jelly12 = new Jellyfish(5450, 320);
-const jelly13 = new Jellyfish(5750, 150);
-const jelly14 = new Jellyfish(5950, 250);
-
-const jellyfish = [
-  jelly1, jelly2, jelly3, jelly4, jelly5, jelly6,
-  jelly7, jelly8, jelly9, jelly10, jelly11, jelly12, jelly13, jelly14,
-];
-
-// ein paar Gift-Flaschen direkt platziert, damit Nachschub nicht nur vom Fisch-Kill abhängt
-const poisonBottles = [
-  new PoisonBottle(2050, 260), new PoisonBottle(2320, 140), new PoisonBottle(2600, 300),
-  new PoisonBottle(5550, 200), new PoisonBottle(5850, 300),
-
-  // Auffüll-Cluster kurz vor der Bosszone (ab x=6045), damit die Leiste vorm Kampf voll ist
-  new PoisonBottle(5700, 320), new PoisonBottle(5820, 80), new PoisonBottle(5960, 380), new PoisonBottle(6030, 180),
-];
-
-const coins = [];
-for (let i = 0; i < 10; i++) {
-  let x = 720 + Math.random() * (6765 - 300 - 720);
-  let y = 50 + Math.random() * 300;
-  coins.push(new Coin(x, y));
+/**
+ * @param {{imageVariant: number, farLayersX: number, nearLayersX: number}[]} segments - The background segments.
+ * @returns {BackgroundObject[]} All background layers of all segments, from left to right.
+ */
+function createBackgroundObjects(segments) {
+  return segments.flatMap(createBackgroundSegment);
 }
 
-const finalEnemy = new FinalEnemy(6765 - 350, 130);
+/**
+ * Creates the five layers of one background segment (water, two far layers, light and floor).
+ * The last number is the parallax factor: layers with a small number move slower than the camera.
+ * @param {{imageVariant: number, farLayersX: number, nearLayersX: number}} segment - The segment to create.
+ * @returns {BackgroundObject[]} The five layers of the segment.
+ */
+function createBackgroundSegment(segment) {
+  let layersFolder = 'graphics/3. Background/Layers/';
+  let variant = segment.imageVariant;
 
-const level1 = new Level(
-  [
-    fishEnemy1, fishEnemy2, fishEnemy3, fishEnemy4, fishEnemy5, fishEnemy6, fishEnemy7,
-    fishEnemy8, fishEnemy9, fishEnemy10, fishEnemy11, fishEnemy12, fishEnemy13, fishEnemy14, fishEnemy15,
-    fishEnemy16, fishEnemy17, fishEnemy18, fishEnemy19, fishEnemy20,
-    fishEnemy21, fishEnemy25,
-  ],
-  coins,
-  jellyfish,
-  poisonBottles,
-  finalEnemy,
-
-  [
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 0, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D1.png', 0, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D1.png', 0, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/1.png', 0, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D1.png', 0, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D2.png', 849, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D2.png', 849, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D2.png', 849, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/2.png', 849, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D2.png', 849, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 1689, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D1.png', 1689, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D1.png', 1689, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/1.png', 1698, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D1.png', 1698, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D2.png', 2516, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D2.png', 2516, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D2.png', 2516, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/2.png', 2547, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D2.png', 2547, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 3365, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D1.png', 3365, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D1.png', 3365, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/1.png', 3369, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D1.png', 3369, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D2.png', 4214, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D2.png', 4214, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D2.png', 4214, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/2.png', 4218, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D2.png', 4218, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 5063, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D1.png', 5063, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D1.png', 5063, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/1.png', 5067, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D1.png', 5067, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D2.png', 5912, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D2.png', 5912, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D2.png', 5912, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/2.png', 5916, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D2.png', 5916, 1),
-
-    new BackgroundObject('graphics/3. Background/Layers/5. Water/D1.png', 6761, 0.3),
-    new BackgroundObject('graphics/3. Background/Layers/4.Fondo 2/D1.png', 6761, 0.5),
-    new BackgroundObject('graphics/3. Background/Layers/3.Fondo 1/D1.png', 6761, 0.8),
-    new BackgroundObject('graphics/3. Background/Layers/1. Light/1.png', 6765, 1),
-    new BackgroundObject('graphics/3. Background/Layers/2. Floor/D1.png', 6765, 1),
-  ],
-);
+  return [
+    new BackgroundObject(`${layersFolder}5. Water/D${variant}.png`, segment.farLayersX, 0.3),
+    new BackgroundObject(`${layersFolder}4.Fondo 2/D${variant}.png`, segment.farLayersX, 0.5),
+    new BackgroundObject(`${layersFolder}3.Fondo 1/D${variant}.png`, segment.farLayersX, 0.8),
+    new BackgroundObject(`${layersFolder}1. Light/${variant}.png`, segment.nearLayersX, 1),
+    new BackgroundObject(`${layersFolder}2. Floor/D${variant}.png`, segment.nearLayersX, 1),
+  ];
+}

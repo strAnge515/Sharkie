@@ -1,3 +1,6 @@
+/**
+ * A pufferfish enemy. It swims to the left, inflates and deflates from time to time and hurts the shark on contact.
+ */
 class Enemy extends MoveableObject {
   IMAGES_PUFFERFISH = {
     green: {
@@ -93,60 +96,97 @@ class Enemy extends MoveableObject {
   };
 
   x = 400 + Math.random() * 500;
- y = 50 + Math.random() * 300;
+  y = 50 + Math.random() * 300;
   width = 100;
   height = 80;
   speed = 0.3 + Math.random() * 0.3;
   state = 'swim';
   isDead = false;
+  deathType;
+  images;
 
+  movementIntervalMs = 1000 / 60;
+  animationIntervalMs = 200;
+  minStateDurationMs = 3000;
+  extraRandomStateDurationMs = 5000;
+
+  /**
+   * Creates a pufferfish that swims to the left and inflates and deflates from time to time.
+   * @param {string} color - 'green', 'orange' or 'blue'.
+   */
   constructor(color) {
     super();
     this.images = this.IMAGES_PUFFERFISH[color];
     this.images.transitionOut = this.images.transition.slice().reverse();
+    this.loadAllImages();
+    this.loadImage(this.images.swim[0]);
+    this.startMovementLoop();
+    this.startAnimationLoop();
+    this.startInflateTimer();
+  }
 
+  /**
+   * Preloads all images of this fish so they can be shown without delay.
+   */
+  loadAllImages() {
     this.loadImages(this.images.swim);
     this.loadImages(this.images.transition);
     this.loadImages(this.images.bubbleSwim);
     this.loadImages(this.images.dead.ceiling);
     this.loadImages(this.images.dead.floor);
-
-    this.loadImage(this.images.swim[0]);
-
-    this.animate();
-    this.startInflateTimer();
   }
 
+  /**
+   * @returns {number} A random time in milliseconds the fish stays in one state (swimming or inflated).
+   */
+  getRandomStateDuration() {
+    return this.minStateDurationMs + Math.random() * this.extraRandomStateDurationMs;
+  }
+
+  /**
+   * Switches to another state and restarts its animation.
+   * @param {string} newState - 'swim', 'transition', 'bubbleSwim' or 'transitionOut'.
+   */
+  changeState(newState) {
+    this.state = newState;
+    this.currentImage = 0;
+  }
+
+  /**
+   * After a random time the fish inflates (transition) and then stays inflated (bubbleSwim).
+   */
   startInflateTimer() {
-    let delay = 3000 + Math.random() * 5000;
+    let delayBeforeInflating = this.getRandomStateDuration();
 
-    setTimeout(() => {
-      this.state = 'transition';
-      this.currentImage = 0;
+    gameTimeout(() => {
+      this.changeState('transition');
 
-      setTimeout(() => {
-        this.state = 'bubbleSwim';
-        this.currentImage = 0;
+      gameTimeout(() => {
+        this.changeState('bubbleSwim');
         this.startDeflateTimer();
-      }, this.images.transition.length * 200);
-    }, delay);
+      }, this.images.transition.length * this.animationIntervalMs);
+    }, delayBeforeInflating);
   }
 
+  /**
+   * After a random time the inflated fish deflates (transitionOut) and swims normally again.
+   */
   startDeflateTimer() {
-    let delay = 3000 + Math.random() * 5000;
+    let delayBeforeDeflating = this.getRandomStateDuration();
 
-    setTimeout(() => {
-      this.state = 'transitionOut';
-      this.currentImage = 0;
+    gameTimeout(() => {
+      this.changeState('transitionOut');
 
-      setTimeout(() => {
-        this.state = 'swim';
-        this.currentImage = 0;
+      gameTimeout(() => {
+        this.changeState('swim');
         this.startInflateTimer();
-      }, this.images.transitionOut.length * 200);
-    }, delay);
+      }, this.images.transitionOut.length * this.animationIntervalMs);
+    }, delayBeforeDeflating);
   }
 
+  /**
+   * @returns {{x: number, y: number, width: number, height: number}} The area where the fish can be hit.
+   */
   getHitbox() {
     return {
       x: this.x + 15,
@@ -156,31 +196,33 @@ class Enemy extends MoveableObject {
     };
   }
 
+  /**
+   * Kills the fish: an inflated fish floats up to the ceiling, a normal fish sinks to the floor.
+   */
   die() {
     this.isDead = true;
     this.currentImage = 0;
     this.deathType = this.state === 'bubbleSwim' ? 'ceiling' : 'floor';
   }
 
-  animate() {
-  setInterval(() => {
-    if (this.isDead) {
-      if (this.deathType === 'ceiling') {
-        this.moveUp();
-      } else {
-        this.moveDown();
-      }
-    } else {
-      this.moveLeft();
-    }
-  }, 1000 / 60);
+  /**
+   * Moves the fish: to the left while alive, up or down after its death.
+   */
+  startMovementLoop() {
+    gameInterval(() => {
+      if (!this.isDead) this.moveLeft();
+      else if (this.deathType === 'ceiling') this.moveUp();
+      else this.moveDown();
+    }, this.movementIntervalMs);
+  }
 
-  setInterval(() => {
-    if (this.isDead) {
-      this.playAnimation(this.images.dead[this.deathType]);
-    } else {
-      this.playAnimation(this.images[this.state]);
-    }
-  }, 200);
-}
+  /**
+   * Plays the animation that belongs to the current state (or the death animation).
+   */
+  startAnimationLoop() {
+    gameInterval(() => {
+      let currentImages = this.isDead ? this.images.dead[this.deathType] : this.images[this.state];
+      this.playAnimation(currentImages);
+    }, this.animationIntervalMs);
+  }
 }
