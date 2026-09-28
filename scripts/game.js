@@ -3,8 +3,10 @@ let world;
 let keyboard = new Keyboard();
 
 /**
- * Runs when the page has loaded: finds the canvas, lets the controls dialog close on a click outside of it
- * and connects the touch buttons.
+ * Runs when the page has loaded: finds the canvas, lets the controls dialog close on a click outside of it,
+ * connects the touch buttons, shows the saved mute state and starts the menu music.
+ * After the dialog closes, the focus is removed from the button that opened it,
+ * so the space key does not open the dialog again.
  */
 function init() {
   canvas = document.getElementById('canvas');
@@ -13,6 +15,7 @@ function init() {
   controlsDialog.addEventListener('click', (event) => {
     if (event.target === controlsDialog) closeControls();
   });
+  controlsDialog.addEventListener('close', () => document.activeElement.blur());
   registerTouchButtons();
   updateMuteIcon();
   startMenuMusic();
@@ -92,6 +95,7 @@ function startGame() {
   playMusic(SOUNDS.levelMusic);
   setHidden('startScreen', true);
   setHidden('endScreen', true);
+  setHidden('exitButton', false);
   keyboard = new Keyboard();
   world = new World(canvas, keyboard, createLevel1());
 }
@@ -104,6 +108,7 @@ function showEndScreen(hasWon) {
   setHidden('gameOverTitle', hasWon);
   setHidden('winTitle', !hasWon);
   setHidden('endScreen', false);
+  setHidden('exitButton', true);
 }
 
 /**
@@ -117,6 +122,7 @@ function backToMenu() {
   playMusic(SOUNDS.menuMusic);
   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   setHidden('endScreen', true);
+  setHidden('exitButton', true);
   setHidden('startScreen', false);
 }
 
@@ -137,11 +143,21 @@ function closeControls() {
 }
 
 /**
- * Remembers a game key as pressed.
+ * Remembers a game key as pressed. Escape leaves the game.
  * @param {KeyboardEvent} event - The keydown event.
  */
 function handleKeyDown(event) {
+  if (event.key === 'Escape') leaveGameWithEscape();
   setKeyState(event.key, true);
+}
+
+/**
+ * Goes back to the main menu while a game is running.
+ * If the controls dialog is open, Escape only closes the dialog (the browser does that on its own).
+ */
+function leaveGameWithEscape() {
+  let isDialogOpen = document.getElementById('controlsDialog').open;
+  if (world && !isDialogOpen) backToMenu();
 }
 
 /**

@@ -11,24 +11,24 @@
     <script src="./scripts/timers.js"></script>
     <script src="./scripts/statusBarImages.js"></script>
     <script src="./scripts/characterImages.js"></script>
-    <script src="./scripts/models/drawableObject.class.js"></script>
-    <script src="./scripts/models/statusbar.class.js"></script>
-    <script src="./scripts/models/moveableObject.class.js"></script>
-    <script src="./scripts/models/background.class.js"></script>
-    <script src="./scripts/models/character.class.js"></script>
-    <script src="./scripts/models/enemy.class.js"></script>
-    <script src="./scripts/models/bubble.class.js"></script>
-    <script src="./scripts/models/coin.class.js"></script>
-    <script src="./scripts/models/jellyfish.class.js"></script>
-    <script src="./scripts/models/poisonbottle.class.js"></script>
-    <script src="./scripts/models/finalenemy.class.js"></script>
+    <script src="./scripts/classes/drawableObject.class.js"></script>
+    <script src="./scripts/classes/statusbar.class.js"></script>
+    <script src="./scripts/classes/moveableObject.class.js"></script>
+    <script src="./scripts/classes/background.class.js"></script>
+    <script src="./scripts/classes/character.class.js"></script>
+    <script src="./scripts/classes/enemy.class.js"></script>
+    <script src="./scripts/classes/bubble.class.js"></script>
+    <script src="./scripts/classes/coin.class.js"></script>
+    <script src="./scripts/classes/jellyfish.class.js"></script>
+    <script src="./scripts/classes/poisonbottle.class.js"></script>
+    <script src="./scripts/classes/finalenemy.class.js"></script>
 
-    <script src="./scripts/models/level.class.js"></script>
+    <script src="./scripts/classes/level.class.js"></script>
     <script src="./levels/level1.js"></script>
-    <script src="./scripts/models/collisionHandler.class.js"></script>
-    <script src="./scripts/models/world.class.js"></script>
+    <script src="./scripts/classes/collisionHandler.class.js"></script>
+    <script src="./scripts/classes/world.class.js"></script>
 
-    <script src="./scripts/models/keyboard.class.js"></script>
+    <script src="./scripts/classes/keyboard.class.js"></script>
     <script src="./scripts/game.js"></script>
   </head>
   <body onload="init()">
@@ -58,6 +58,7 @@
           <img class="start-image" src="graphics/6.Botones/Start/1.png" alt="Start" width="208" />
         </button>
         <button class="text-button" onclick="openControls()">Steuerung</button>
+        <a class="impressum-link" href="impressum.html">Impressum</a>
       </section>
 
       <section id="endScreen" class="screen end-screen hidden">
@@ -69,9 +70,13 @@
         <button class="text-button" onclick="backToMenu()">Hauptmenü</button>
       </section>
 
-      <button class="mute-button" onclick="handleMuteClick(event)">
-        <img id="muteIcon" src="graphics/icons/sound-on.svg" alt="Ton ausschalten" />
-      </button>
+      <div class="corner-buttons">
+        <button id="exitButton" class="round-button hidden" onclick="backToMenu()" aria-label="Zum Hauptmenü">&#10005;</button>
+        <button class="round-button" onclick="openControls()" aria-label="Steuerung anzeigen">?</button>
+        <button class="round-button" onclick="handleMuteClick(event)">
+          <img id="muteIcon" src="graphics/icons/sound-on.svg" alt="Ton ausschalten" />
+        </button>
+      </div>
     </div>
 
     <div class="rotate-hint">

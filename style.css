@@ -114,22 +114,40 @@ canvas {
     transition: transform 0.15s;
 }
 
-.mute-button {
+.impressum-link {
+    position: absolute;
+    bottom: 10px;
+    left: 14px;
+    color: #fff;
+    font-size: 14px;
+    text-shadow: 1px 1px 0 var(--purple);
+}
+
+.corner-buttons {
     position: absolute;
     top: 14px;
     right: 14px;
     z-index: 1;
+    display: flex;
+    gap: 10px;
+}
+
+.round-button {
     width: 48px;
     height: 48px;
     padding: 10px;
     border: 3px solid #fff;
     border-radius: 50%;
     background: var(--purple);
+    color: #fff;
+    font-family: inherit;
+    font-size: 24px;
+    line-height: 1;
     cursor: pointer;
     transition: transform 0.15s;
 }
 
-.mute-button img {
+.round-button img {
     display: block;
     width: 100%;
     height: 100%;
@@ -137,7 +155,7 @@ canvas {
 
 .image-button:hover,
 .text-button:hover,
-.mute-button:hover {
+.round-button:hover {
     transform: scale(1.06);
 }
 
@@ -352,12 +370,23 @@ dialog h2 {
         font-size: 17px;
     }
 
-    .mute-button {
+    .corner-buttons {
         top: 8px;
         right: 8px;
+        gap: 6px;
+    }
+
+    .round-button {
         width: 34px;
         height: 34px;
         padding: 6px;
         border-width: 2px;
+        font-size: 17px;
+    }
+
+    .impressum-link {
+        bottom: 6px;
+        left: 8px;
+        font-size: 11px;
     }
 }

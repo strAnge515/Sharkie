@@ -1,0 +1,46 @@
+/* Impressum page: normal scrolling page instead of the centered game layout. */
+.impressum-page {
+    display: block;
+    height: auto;
+    min-height: 100dvh;
+    overflow: auto;
+}
+
+.impressum {
+    max-width: 560px;
+    margin: 32px auto;
+    padding: 24px 32px 32px;
+    border: 4px solid #fff;
+    border-radius: 28px;
+    background: var(--lavender);
+    color: var(--purple);
+}
+
+.impressum h1 {
+    margin: 0 0 8px;
+    font-size: 40px;
+    font-weight: normal;
+}
+
+.impressum h2 {
+    margin: 20px 0 4px;
+    font-size: 22px;
+    font-weight: normal;
+}
+
+.impressum p {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.impressum a {
+    color: var(--purple);
+}
+
+.impressum .text-button {
+    display: inline-block;
+    margin-top: 24px;
+    color: #fff;
+    text-decoration: none;
+}

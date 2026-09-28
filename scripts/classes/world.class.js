@@ -177,31 +177,6 @@ class World {
   }
 
   /**
-   * Keeps spawning a random enemy at the right screen edge in random intervals (currently not used).
-   */
-  spawnEnemies() {
-    let delayUntilNextEnemy = 4000 + Math.random() * 6000;
-
-    gameTimeout(() => {
-      if (this.character.x < this.level.levelEndX - this.canvas.width) {
-        this.spawnRandomEnemy();
-        this.spawnEnemies();
-      }
-    }, delayUntilNextEnemy);
-  }
-
-  /**
-   * Adds a pufferfish with a random color at the right screen edge.
-   */
-  spawnRandomEnemy() {
-    let colors = ['green', 'orange', 'blue'];
-    let randomColor = colors[Math.floor(Math.random() * colors.length)];
-    let enemy = new Enemy(randomColor);
-    enemy.x = this.canvas.width - this.cameraX;
-    this.level.enemies.push(enemy);
-  }
-
-  /**
    * Lets the boss appear as soon as the shark reaches the last screen of the level.
    */
   checkBossZone() {
