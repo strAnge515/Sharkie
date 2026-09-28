@@ -114,8 +114,30 @@ canvas {
     transition: transform 0.15s;
 }
 
+.mute-button {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 1;
+    width: 48px;
+    height: 48px;
+    padding: 10px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: var(--purple);
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.mute-button img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 .image-button:hover,
-.text-button:hover {
+.text-button:hover,
+.mute-button:hover {
     transform: scale(1.06);
 }
 
@@ -328,5 +350,14 @@ dialog h2 {
         width: 40px;
         height: 40px;
         font-size: 17px;
+    }
+
+    .mute-button {
+        top: 8px;
+        right: 8px;
+        width: 34px;
+        height: 34px;
+        padding: 6px;
+        border-width: 2px;
     }
 }

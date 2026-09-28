@@ -14,7 +14,29 @@ function init() {
     if (event.target === controlsDialog) closeControls();
   });
   registerTouchButtons();
+  updateMuteIcon();
   startMenuMusic();
+}
+
+/**
+ * Switches all sounds on or off and shows the matching icon.
+ * blur() takes the focus away from the button, so the space key shoots a bubble
+ * instead of clicking the mute button again.
+ * @param {MouseEvent} event - The click event of the mute button.
+ */
+function handleMuteClick(event) {
+  toggleMute();
+  updateMuteIcon();
+  event.currentTarget.blur();
+}
+
+/**
+ * Shows the speaker icon that fits the current mute state.
+ */
+function updateMuteIcon() {
+  let muteIcon = document.getElementById('muteIcon');
+  muteIcon.src = isMuted ? 'graphics/icons/sound-off.svg' : 'graphics/icons/sound-on.svg';
+  muteIcon.alt = isMuted ? 'Ton einschalten' : 'Ton ausschalten';
 }
 
 /**
