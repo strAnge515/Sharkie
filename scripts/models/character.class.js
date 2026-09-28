@@ -35,7 +35,7 @@ class Character extends MoveableObject {
 
   damagePerHit = 20;
   hitCooldownMs = 2000;
-  longIdleAfterSeconds = 30;
+  longIdleAfterSeconds = 15;
   poisonBubbleCost = 20;
   bubbleMouthOffsetY = 27;
 
@@ -76,6 +76,7 @@ class Character extends MoveableObject {
    */
   startMovementLoop() {
     gameInterval(() => {
+      this.updateSnoreSound();
       if (this.isDead || this.isAttackingOrShooting()) return;
       this.moveRightWithKeyboard();
       this.moveLeftWithKeyboard();
@@ -200,9 +201,23 @@ class Character extends MoveableObject {
    * Plays one idle frame; after a long time without movement the shark falls asleep (long idle).
    */
   playIdleAnimation() {
+    this.playAnimation(this.isSleeping() ? this.IMAGES_LONG_IDLE : this.IMAGES_IDLE);
+  }
+
+  /**
+   * @returns {boolean} True if the shark has not moved for so long that it fell asleep.
+   */
+  isSleeping() {
     let secondsWithoutMovement = (Date.now() - this.lastMoveTime) / 1000;
-    let isSleeping = secondsWithoutMovement > this.longIdleAfterSeconds;
-    this.playAnimation(isSleeping ? this.IMAGES_LONG_IDLE : this.IMAGES_IDLE);
+    return secondsWithoutMovement > this.longIdleAfterSeconds;
+  }
+
+  /**
+   * Snores while the shark is asleep and stops snoring as soon as it wakes up or dies.
+   */
+  updateSnoreSound() {
+    if (this.isSleeping() && !this.isDead) startLoopSound(SOUNDS.snore);
+    else stopLoopSound(SOUNDS.snore);
   }
 
   /**
@@ -223,6 +238,7 @@ class Character extends MoveableObject {
     if (this.world.keyboard.D && !this.isAttackingOrShooting()) {
       this.currentImage = 0;
       this.isAttacking = true;
+      playRandomSound(SOUNDS.tailSlaps);
     }
   }
 
@@ -280,6 +296,7 @@ class Character extends MoveableObject {
     let bubbleX = this.x + this.width;
     let bubbleY = this.y + this.height / 2 + this.bubbleMouthOffsetY;
     this.world.spawnBubble(bubbleX, bubbleY, this.bubbleType);
+    playSound(SOUNDS.bubble);
 
     if (this.bubbleType === 'poison') this.world.usePoison(this.poisonBubbleCost);
   }
@@ -324,6 +341,7 @@ class Character extends MoveableObject {
     this.currentImage = 0;
     this.lastHitTime = now;
     this.lastMoveTime = now;
+    playSound(hitType === 'electric' ? SOUNDS.hurtElectric : SOUNDS.hurtPoison);
     this.loseHealth();
     return true;
   }

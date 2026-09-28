@@ -162,6 +162,7 @@ class CollisionHandler {
 
     this.world.level.coins.splice(coinIndex, 1);
     this.world.coinsCollected++;
+    playSound(SOUNDS.coin);
 
     let coinPercentage = this.world.coinsCollected * this.percentagePerCoin;
     this.world.coinStatusBar.setPercentage(Math.min(this.maxStatusPercentage, coinPercentage));
@@ -187,6 +188,7 @@ class CollisionHandler {
     if (bottleIndex === -1) return;
 
     this.world.poisonBottles.splice(bottleIndex, 1);
+    playSound(SOUNDS.poisonBottle);
     let poisonPercentage = this.world.poisonCollected + this.percentagePerPoisonBottle;
     this.world.poisonCollected = Math.min(this.maxStatusPercentage, poisonPercentage);
     this.world.poisonStatusBar.setPercentage(this.world.poisonCollected);
@@ -198,6 +200,7 @@ class CollisionHandler {
    */
   killEnemy(enemy) {
     enemy.die();
+    playSound(SOUNDS.fishHit);
 
     let enemyHitbox = enemy.getHitbox();
     this.world.spawnPoisonBottle(enemyHitbox.x + enemyHitbox.width, enemyHitbox.y);
@@ -210,6 +213,7 @@ class CollisionHandler {
    */
   killJellyfish(jellyfish) {
     jellyfish.die();
+    playSound(SOUNDS.jellyfishHit);
     this.removeLater(this.world.level.jellyfish, jellyfish);
   }
 

@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="./style.css" />
 
+    <script src="./scripts/sounds.js"></script>
     <script src="./scripts/timers.js"></script>
     <script src="./scripts/statusBarImages.js"></script>
     <script src="./scripts/characterImages.js"></script>
@@ -34,6 +35,19 @@
     <div class="canvas-wrapper">
       <canvas id="canvas" height="480" width="720"></canvas>
 
+      <div class="touch-controls">
+        <div class="touch-pad">
+          <button class="touch-button touch-up" data-key="ArrowUp" aria-label="Hoch">&#9650;</button>
+          <button class="touch-button touch-left" data-key="ArrowLeft" aria-label="Links">&#9664;</button>
+          <button class="touch-button touch-right" data-key="ArrowRight" aria-label="Rechts">&#9654;</button>
+          <button class="touch-button touch-down" data-key="ArrowDown" aria-label="Runter">&#9660;</button>
+        </div>
+        <div class="touch-actions">
+          <button class="touch-button" data-key="d" aria-label="Schwanzattacke">D</button>
+          <button class="touch-button" data-key=" " aria-label="Blase schießen">&#9675;</button>
+        </div>
+      </div>
+
       <section id="startScreen" class="screen start-screen">
         <h1 class="game-title">Sharkie</h1>
         <p class="story">
@@ -41,19 +55,24 @@
           und besiege am Ende den riesigen Wal!
         </p>
         <button class="image-button" onclick="startGame()">
-          <img src="graphics/6.Botones/Start/1.png" alt="Start" width="208" />
+          <img class="start-image" src="graphics/6.Botones/Start/1.png" alt="Start" width="208" />
         </button>
         <button class="text-button" onclick="openControls()">Steuerung</button>
       </section>
 
       <section id="endScreen" class="screen end-screen hidden">
-        <img id="gameOverTitle" src="graphics/6.Botones/Tittles/Game Over/Recurso 9.png" alt="Game Over" width="480" />
-        <img id="winTitle" class="hidden" src="graphics/6.Botones/Tittles/You win/Recurso 19.png" alt="You win" width="400" />
+        <img id="gameOverTitle" class="game-over-image" src="graphics/6.Botones/Tittles/Game Over/Recurso 9.png" alt="Game Over" width="480" />
+        <img id="winTitle" class="win-image hidden" src="graphics/6.Botones/Tittles/You win/Recurso 19.png" alt="You win" width="400" />
         <button class="image-button" onclick="startGame()">
-          <img src="graphics/6.Botones/Try again/Recurso 15.png" alt="Try again" width="260" />
+          <img class="try-again-image" src="graphics/6.Botones/Try again/Recurso 15.png" alt="Try again" width="260" />
         </button>
         <button class="text-button" onclick="backToMenu()">Hauptmenü</button>
       </section>
+    </div>
+
+    <div class="rotate-hint">
+      <span class="rotate-icon">&#10227;</span>
+      <p>Bitte dreh dein Gerät ins Querformat</p>
     </div>
 
     <dialog id="controlsDialog">
@@ -69,7 +88,7 @@
       </div>
       <div class="control-row">
         <img src="graphics/6.Botones/Key/Space Bar key.png" alt="Leertaste" />
-        <span>Blase schießen: besiegt Quallen, mit Gift gefüllt auch den Wal</span>
+        <span>Blase schießen: besiegt Quallen und den Wal</span>
       </div>
     </dialog>
   </body>

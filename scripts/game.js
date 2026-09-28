@@ -3,7 +3,8 @@ let world;
 let keyboard = new Keyboard();
 
 /**
- * Runs when the page has loaded: finds the canvas and lets the controls dialog close on a click outside of it.
+ * Runs when the page has loaded: finds the canvas, lets the controls dialog close on a click outside of it
+ * and connects the touch buttons.
  */
 function init() {
   canvas = document.getElementById('canvas');
@@ -12,6 +13,42 @@ function init() {
   controlsDialog.addEventListener('click', (event) => {
     if (event.target === controlsDialog) closeControls();
   });
+  registerTouchButtons();
+  startMenuMusic();
+}
+
+/**
+ * Starts the menu music. Browsers block sound until the first click or key press,
+ * so the music is resumed on the first interaction.
+ */
+function startMenuMusic() {
+  playMusic(SOUNDS.menuMusic);
+  document.addEventListener('pointerdown', resumeMusic);
+  document.addEventListener('keydown', resumeMusic);
+}
+
+/**
+ * Connects every touch button with the game key stored in its data-key attribute.
+ */
+function registerTouchButtons() {
+  document.querySelectorAll('.touch-button').forEach((button) => {
+    let keyName = button.dataset.key;
+    button.addEventListener('touchstart', (event) => handleTouch(event, keyName, true), { passive: false });
+    button.addEventListener('touchend', (event) => handleTouch(event, keyName, false));
+    button.addEventListener('touchcancel', (event) => handleTouch(event, keyName, false));
+    button.addEventListener('contextmenu', (event) => event.preventDefault());
+  });
+}
+
+/**
+ * Presses or releases a game key through a touch button. preventDefault stops the browser from scrolling or zooming.
+ * @param {TouchEvent} event - The touch event.
+ * @param {string} keyName - The key this button stands for, for example 'ArrowLeft'.
+ * @param {boolean} isPressed - True when the finger touches the button, false when it lets go.
+ */
+function handleTouch(event, keyName, isPressed) {
+  event.preventDefault();
+  setKeyState(keyName, isPressed);
 }
 
 /**
@@ -28,6 +65,9 @@ function setHidden(elementId, hidden) {
  */
 function startGame() {
   if (world) world.stop();
+  stopAllSounds();
+  playSound(SOUNDS.click);
+  playMusic(SOUNDS.levelMusic);
   setHidden('startScreen', true);
   setHidden('endScreen', true);
   keyboard = new Keyboard();
@@ -50,6 +90,9 @@ function showEndScreen(hasWon) {
 function backToMenu() {
   if (world) world.stop();
   world = null;
+  stopAllSounds();
+  playSound(SOUNDS.click);
+  playMusic(SOUNDS.menuMusic);
   canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   setHidden('endScreen', true);
   setHidden('startScreen', false);
@@ -59,6 +102,7 @@ function backToMenu() {
  * Opens the dialog that explains the keys.
  */
 function openControls() {
+  playSound(SOUNDS.click);
   document.getElementById('controlsDialog').showModal();
 }
 
@@ -66,6 +110,7 @@ function openControls() {
  * Closes the dialog that explains the keys.
  */
 function closeControls() {
+  playSound(SOUNDS.click);
   document.getElementById('controlsDialog').close();
 }
 

@@ -141,6 +141,7 @@ class FinalEnemy extends MoveableObject {
     this.isIntroducing = true;
     this.img = this.imageCache[this.IMAGES_INTRODUCE[0]];
     this.isVisible = true;
+    playMusic(SOUNDS.bossMusic);
   }
 
   /**
@@ -233,6 +234,7 @@ class FinalEnemy extends MoveableObject {
 
     this.health--;
     this.currentImage = 0;
+    playSound(SOUNDS.bossHit);
 
     if (this.health <= 0) {
       this.isDead = true;

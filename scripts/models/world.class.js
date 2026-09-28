@@ -233,6 +233,9 @@ class World {
    */
   endGame(hasWon, delay) {
     this.isEnded = true;
+    stopMusic();
+    stopLoopSound(SOUNDS.snore);
+    playSound(hasWon ? SOUNDS.victory : SOUNDS.gameOver);
 
     gameTimeout(() => {
       this.stop();
